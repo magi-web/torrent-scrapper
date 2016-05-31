@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="app.scrapper.engine.class">AppBundle\Scrapper\ScrapperEngine</parameter>
+
+        <parameter key="app.scrapper.client.abstract.class">AppBundle\Scrapper\Clients\AbstractClient</parameter>
+        <parameter key="app.scrapper.client.t411.class">AppBundle\Scrapper\Clients\T411Client</parameter>
+    </parameters>
+
+    <services>
+        <service id="app.scrapper.engine" class="%app.scrapper.engine.class%">
+            <argument type="service" id="logger" />
+            <tag name="monolog.logger" channel="scrapper" />
+        </service>
+
+        <service id="app.scrapper.client.abstract" class="%app.scrapper.client.abstract.class%" abstract="true">
+            <call method="setLogger">
+                <argument type="service" id="logger" />
+            </call>
+            <call method="setRootDir">
+                <argument>%kernel.root_dir%</argument>
+            </call>
+            <tag name="monolog.logger" channel="scrapper" />
+        </service>
+
+        <service id="app.scrapper.client.t411" class="%app.scrapper.client.t411.class%"
+                 parent="app.scrapper.client.abstract">
+            <tag name="scrapper.client" alias="scrapper.client.www.t411.ch"/>
+        </service>
+    </services>
+
+</container>
